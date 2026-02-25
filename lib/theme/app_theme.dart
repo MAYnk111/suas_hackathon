@@ -1,0 +1,115 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+class AppTheme {
+  static const Color background = Color(0xFFFAF8F5);
+  static const Color foreground = Color(0xFF252B37);
+  static const Color card = Color(0xFFFDFDFC);
+  static const Color border = Color(0xFFEBE6E0);
+  static const Color muted = Color(0xFFF1EEEA);
+  static const Color mutedForeground = Color(0xFF737B8C);
+  static const Color primary = Color(0xFFEF8239);
+  static const Color primaryForeground = Color(0xFFFDFDFC);
+  static const Color secondary = Color(0xFFD9E8E2);
+  static const Color secondaryForeground = Color(0xFF2D5346);
+  static const Color accent = Color(0xFFD1E0F0);
+  static const Color accentForeground = Color(0xFF264059);
+  static const Color sage = Color(0xFF9FC6B6);
+  static const Color sageForeground = Color(0xFF244236);
+  static const Color warm = Color(0xFFF7EDDE);
+  static const Color warmForeground = Color(0xFF735326);
+  static const Color coral = Color(0xFFE47C67);
+  static const Color coralForeground = Color(0xFF521F14);
+  static const Color destructive = Color(0xFFDF3A3A);
+  static const Color destructiveForeground = Color(0xFFFFFFFF);
+  static const Color sidebarBackground = Color(0xFFF8F6F2);
+  static const Color sidebarForeground = Color(0xFF414958);
+
+  static const double radius = 16;
+
+  static ThemeData light = ThemeData(
+    useMaterial3: true,
+    scaffoldBackgroundColor: background,
+    textTheme: _buildTextTheme(),
+    colorScheme: const ColorScheme.light(
+      primary: primary,
+      onPrimary: primaryForeground,
+      secondary: secondary,
+      onSecondary: secondaryForeground,
+      surface: card,
+      onSurface: foreground,
+      error: destructive,
+      onError: destructiveForeground,
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: background,
+      foregroundColor: foreground,
+      elevation: 0,
+      titleTextStyle: GoogleFonts.nunito(fontSize: 20, fontWeight: FontWeight.w700, color: foreground),
+      iconTheme: const IconThemeData(color: foreground),
+    ),
+    cardTheme: CardThemeData(
+      color: card,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(radius),
+        side: const BorderSide(color: border),
+      ),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: card,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: border),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: border),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: primary, width: 1.5),
+      ),
+      hintStyle: const TextStyle(color: mutedForeground),
+    ),
+    dividerColor: border,
+    chipTheme: const ChipThemeData(
+      backgroundColor: muted,
+      labelStyle: TextStyle(color: mutedForeground, fontWeight: FontWeight.w600),
+      side: BorderSide(color: border),
+      shape: StadiumBorder(),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: primary,
+        foregroundColor: primaryForeground,
+        textStyle: const TextStyle(fontWeight: FontWeight.w600),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: foreground,
+        side: const BorderSide(color: border),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    ),
+  );
+
+  static TextTheme _buildTextTheme() {
+    final base = GoogleFonts.dmSansTextTheme();
+    return base.copyWith(
+      headlineLarge: GoogleFonts.nunito(fontSize: 28, fontWeight: FontWeight.w800, color: foreground),
+      headlineMedium: GoogleFonts.nunito(fontSize: 22, fontWeight: FontWeight.w700, color: foreground),
+      titleLarge: GoogleFonts.nunito(fontSize: 20, fontWeight: FontWeight.w700, color: foreground),
+      titleMedium: GoogleFonts.nunito(fontSize: 16, fontWeight: FontWeight.w700, color: foreground),
+      bodyLarge: base.bodyLarge?.copyWith(fontWeight: FontWeight.w500, color: foreground),
+      bodyMedium: base.bodyMedium?.copyWith(fontWeight: FontWeight.w500, color: foreground),
+      bodySmall: base.bodySmall?.copyWith(fontWeight: FontWeight.w500, color: mutedForeground),
+    );
+  }
+}
