@@ -7,11 +7,11 @@ import '../providers/language_provider.dart';
 import '../providers/family_provider.dart';
 import '../providers/health_data_provider.dart';
 import '../providers/reminder_provider.dart';
+import '../providers/role_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_spacing.dart';
 import '../widgets/app_card.dart';
 import '../widgets/section_header.dart';
-import '../screens/health_data_export_screen.dart';
 import '../screens/user_health_information_screen.dart';
 import '../screens/health_snapshot_preview_screen.dart';
 
@@ -129,6 +129,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   }).toList(),
                   underline: const SizedBox(),
                 ),
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+
+            // Role Switcher - Switch to Pregnancy Care
+            AppCard(
+              child: ListTile(
+                title: const Text('Care Mode'),
+                subtitle: const Text(
+                  'Currently in General Healthcare mode',
+                  style: TextStyle(color: AppTheme.mutedForeground),
+                ),
+                trailing: const Icon(Icons.arrow_forward),
+                leading: const CircleAvatar(
+                  backgroundColor: Colors.blue,
+                  child: Icon(Icons.local_hospital, color: Colors.white),
+                ),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Switch to Pregnancy Care'),
+                      content: const Text(
+                        'Switch to Pregnancy Care mode for comprehensive maternal health tracking and support.',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          child: const Text('Cancel'),
+                        ),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.pop(ctx);
+                            
+                            // ✅ Switch role (updates RoleProvider and saves to storage)
+                            context.read<RoleProvider>().switchToPregnancy();
+                            
+                            // ✅ Pop everything to root - AppEntry Consumer will rebuild automatically
+                            final navigator = Navigator.of(context, rootNavigator: true);
+                            navigator.popUntil((route) => route.isFirst);
+                          },
+                          icon: const Icon(Icons.pregnant_woman),
+                          label: const Text('Switch'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
                 contentPadding: EdgeInsets.zero,
               ),
             ),
@@ -375,9 +424,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: const Text('Cancel'),
                         ),
                         TextButton(
-                          onPressed: () {
+                          onPressed: () async {
                             Navigator.pop(ctx);
-                            context.read<AuthProvider>().logout();
+                            // Reset role to general before logout
+                            context.read<RoleProvider>().reset();
+                            await context.read<AuthProvider>().logout();
+                            
+                            // Pop to root - AppEntry Consumer will show LoginScreen
+                            if (context.mounted) {
+                              final navigator = Navigator.of(context, rootNavigator: true);
+                              navigator.popUntil((route) => route.isFirst);
+                            }
                           },
                           child: const Text('Logout'),
                         ),

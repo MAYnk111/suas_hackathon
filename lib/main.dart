@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import 'firebase_options.dart';
 import 'providers/auth_provider.dart';
@@ -21,13 +22,28 @@ import 'providers/reminder_provider.dart';
 import 'providers/meditation_provider.dart';
 import 'providers/family_provider.dart';
 import 'providers/health_data_provider.dart';
+import 'providers/role_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/main_navigation_screen.dart';
-import 'theme/app_theme.dart';
+import 'pregnancy_role/pregnancy_role_app.dart';
+import 'theme/vatsalya_theme.dart';
 import 'utils/app_config.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Hive for local storage
+  try {
+    await Hive.initFlutter();
+    // Open required boxes for pregnancy and reminders
+    await Hive.openBox('pregnancyBox');
+    await Hive.openBox('reminderBox');
+    // ignore: avoid_print
+    print('✅ Hive initialized successfully');
+  } catch (e) {
+    // ignore: avoid_print
+    print('⚠️ Hive initialization warning: $e');
+  }
   
   // Initialize Firebase
   try {
@@ -44,11 +60,12 @@ void main() async {
 
   // ignore: avoid_print
   print('BASE URL: ${AppConfig.baseUrl}');
-  runApp(const SudhaApp());
+  runApp(const RootApp());
 }
 
-class SudhaApp extends StatelessWidget {
-  const SudhaApp({super.key});
+/// Root App - Entry point with all providers
+class RootApp extends StatelessWidget {
+  const RootApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +73,14 @@ class SudhaApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => LanguageProvider()),
+        ChangeNotifierProvider(
+          create: (_) {
+            final provider = RoleProvider();
+            // Load saved role from storage
+            provider.initialize();
+            return provider;
+          },
+        ),
         ChangeNotifierProvider(create: (_) => HospitalChecklistProvider()),
         ChangeNotifierProvider(create: (_) => BottomNavProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
@@ -77,8 +102,8 @@ class SudhaApp extends StatelessWidget {
           return MaterialApp(
             title: 'SUDHA',
             debugShowCheckedModeBanner: false,
-            theme: AppTheme.light,
-            darkTheme: AppTheme.dark,
+            theme: VatsalyaTheme.lightTheme,
+            darkTheme: VatsalyaTheme.darkTheme,
             themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
             // ✅ Locale configuration for language switching
             locale: languageProvider.locale,
@@ -99,34 +124,37 @@ class SudhaApp extends StatelessWidget {
   }
 }
 
-class AppEntry extends StatefulWidget {
+/// App Entry Point - Authentication and Role Routing
+class AppEntry extends StatelessWidget {
   const AppEntry({super.key});
 
   @override
-  State<AppEntry> createState() => _AppEntryState();
-}
-
-class _AppEntryState extends State<AppEntry> {
-  @override
-  void initState() {
-    super.initState();
+  Widget build(BuildContext context) {
+    // Reset tracking state once on mount
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<TrackingProvider>().resetState();
     });
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<AuthProvider>(
-      builder: (context, auth, _) {
+    return Consumer2<AuthProvider, RoleProvider>(
+      builder: (context, auth, roleProvider, _) {
+        // Show loading spinner while checking auth
         if (auth.isLoading) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
-        return auth.isAuthenticated
-            ? const MainNavigationScreen()
-            : const LoginScreen();
+        
+        // ✅ STEP 1: Check Authentication First
+        if (!auth.isAuthenticated) {
+          return const LoginScreen();
+        }
+        
+        // ✅ STEP 2: Route Based on Role (Single Source of Truth)
+        if (roleProvider.isPregnancyMode) {
+          return const PregnancyRoleRoot();
+        } else {
+          return const MainNavigationScreen();
+        }
       },
     );
   }

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
+import '../exceptions/medicine_validation_exception.dart';
 import '../models/medicine_verification.dart';
 import '../models/triage_models.dart';
 import '../utils/app_config.dart';
@@ -99,28 +100,50 @@ class ApiService {
     _log('VERIFY_MEDICINE', 'Image path: ${imageFile.path}');
     _log('VERIFY_MEDICINE', 'Endpoint: ${AppConfig.verifyMedicine}');
 
-    final request = http.MultipartRequest('POST', Uri.parse(AppConfig.verifyMedicine));
-    request.files.add(await http.MultipartFile.fromPath('image', imageFile.path));
+    try {
+      final request = http.MultipartRequest('POST', Uri.parse(AppConfig.verifyMedicine));
+      request.files.add(await http.MultipartFile.fromPath('image', imageFile.path));
 
-    _log('VERIFY_MEDICINE', 'Multipart request prepared with field: "image"');
+      _log('VERIFY_MEDICINE', 'Multipart request prepared with field: "image"');
 
-    final streamed = await request.send().timeout(_timeout);
-    final response = await http.Response.fromStream(streamed);
+      final streamed = await request.send().timeout(_timeout);
+      final response = await http.Response.fromStream(streamed);
 
-    print('URL: ${AppConfig.verifyMedicine}');
-    print('STATUS: ${response.statusCode}');
-    print('BODY: ${response.body}');
-    _log('VERIFY_MEDICINE', 'Response status code: ${response.statusCode}');
-    _log('VERIFY_MEDICINE', 'Response body: ${response.body}');
+      print('URL: ${AppConfig.verifyMedicine}');
+      print('STATUS: ${response.statusCode}');
+      print('BODY: ${response.body}');
+      _log('VERIFY_MEDICINE', 'Response status code: ${response.statusCode}');
+      _log('VERIFY_MEDICINE', 'Response body: ${response.body}');
 
-    if (response.statusCode != 200) {
-      _log('VERIFY_MEDICINE', '❌ Error: HTTP ${response.statusCode}');
-      throw Exception('Backend Error ${response.statusCode}: ${response.body}');
+      final data = _parseJsonMap(response.body);
+
+      // Check if validation failed (new backend validation logic)
+      if (data.containsKey('success') && data['success'] == false) {
+        _log('VERIFY_MEDICINE', '⚠️ Image validation failed: ${data['message']}');
+        throw MedicineValidationException(
+          data['message'] ?? 'Invalid medicine image',
+          details: data['details'],
+        );
+      }
+
+      // Handle HTTP error status codes
+      if (response.statusCode != 200) {
+        _log('VERIFY_MEDICINE', '❌ Error: HTTP ${response.statusCode}');
+        throw Exception('Backend Error ${response.statusCode}: ${response.body}');
+      }
+
+      // Parse successful medicine analysis
+      // Check if response has nested 'analysis' field (new format) or direct fields (old format)
+      final analysisData = data.containsKey('analysis') ? data['analysis'] : data;
+      _validateKeys(analysisData, ['confidence', 'riskLevel', 'message']);
+      return MedicineVerificationResult.fromJson(analysisData);
+      
+    } on MedicineValidationException {
+      rethrow;
+    } catch (e) {
+      _log('VERIFY_MEDICINE', '❌ Error: $e');
+      rethrow;
     }
-
-    final data = _parseJsonMap(response.body);
-    _validateKeys(data, ['confidence', 'riskLevel', 'message']);
-    return MedicineVerificationResult.fromJson(data);
   }
 
   Future<Map<String, dynamic>> _get(String url) async {

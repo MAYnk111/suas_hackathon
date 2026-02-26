@@ -1,0 +1,117 @@
+{
+  "app_name": "Vatsalya",
+  "nav": {
+    "home": "Home",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
+  "profile": {
+    "title": "My Profile",
+    "settings": "Settings",
+    "about": "About",
+    "dark_mode": "Dark Mode",
+    "adjust_appearance": "Adjust app appearance",
+    "language": "Language",
+    "account_journey_notifications": "Account, Journey & Notifications",
+    "version": "Version",
+    "privacy_policy": "Privacy Policy",
+    "terms_of_service": "Terms of Service",
+    "log_out": "Log Out",
+    "select_language": "Select Language",
+    "cancel": "Cancel",
+    "language_changed": "Language changed to"
+  },
+  "dashboard": {
+    "title": "Vatsalya Hub",
+    "hi": "Hi",
+    "welcome": "Welcome back",
+    "daily_summary": "Daily Summary",
+    "weekly_insights": "Weekly Insights",
+    "quick_actions": "Quick Actions"
+  },
+  "pregnancy": {
+    "title": "Pregnancy Tracking",
+    "week": "Week",
+    "baby_kicks": "Baby Kicks",
+    "contractions": "Contractions",
+    "hydration": "Hydration",
+    "activity": "Activity",
+    "blood_pressure": "Blood Pressure",
+    "weight": "Weight",
+    "doctor_visits": "Doctor Visits"
+  },
+  "daily_summary": {
+    "title": "Daily Summary",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "insights": "Insights",
+    "recommendations": "Recommendations",
+    "no_data": "No data for today"
+  },
+  "weekly_stats": {
+    "title": "Weekly Insights",
+    "this_week": "This Week",
+    "last_week": "Last Week",
+    "average": "Average",
+    "peak": "Peak",
+    "total": "Total"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "done": "Done",
+    "loading": "Loading",
+    "error": "Error",
+    "success": "Success",
+    "retry": "Retry",
+    "close": "Close",
+    "ok": "OK",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "role": {
+    "pregnant": "Expecting Mother",
+    "trying_to_conceive": "Trying to Conceive",
+    "toddler_parent": "Toddler Parent"
+  },
+  "translation_service": {
+    "ready": "Translation Service Ready",
+    "offline": "Translation Service Offline",
+    "checking": "Checking Translation Service",
+    "unavailable": "Translation Service Unavailable"
+  },
+  "vaccination": {
+    "title": "Vaccinations",
+    "tab_upcoming": "Upcoming",
+    "tab_completed": "Completed",
+    "tab_schedule": "Schedule",
+    "no_upcoming": "No upcoming vaccinations",
+    "no_completed": "No completed vaccinations",
+    "age": "Age:",
+    "scheduled": "Vaccination scheduled",
+    "schedule": "Schedule",
+    "due": "Due:",
+    "administered": "Administered:",
+    "days_left": "days left",
+    "batch": "Batch:",
+    "doctor": "Doctor:"
+  },
+  "ttc": {
+    "app_bar_title": "Fertility Setup",
+    "title": "Trying to Conceive",
+    "description": "Provide your cycle details to personalize your fertility tracking experience.",
+    "lmp_label": "Last Menstrual Period Start Date",
+    "select_date": "Select Date",
+    "cycle_length_label": "Average Cycle Length (days)",
+    "cycle_regularity": "Cycle Regularity",
+    "cycle_regularity_subtitle": "Turn off if your cycles vary significantly",
+    "complete_setup": "Complete Setup",
+    "missing_details": "Please provide all required details.",
+    "cycle_length_range": "Average cycle length should be between 20 and 60 days.",
+    "no_user": "No authenticated user found.",
+    "error_saving_setup": "Error saving setup:"
+  }
+}

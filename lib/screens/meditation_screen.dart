@@ -467,19 +467,20 @@ class _MeditationScreenState extends State<MeditationScreen> {
 
                   // Music Player Controls
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          final newIndex = (_selectedMusicTrack - 1 + _classicalTracks.length) %
-                                      _classicalTracks.length;
-                          _changeTrack(newIndex);
-                        },
-                        icon: const Icon(Icons.skip_previous),
-                        label: const Text('Previous'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primary,
-                          foregroundColor: Colors.white,
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            final newIndex = (_selectedMusicTrack - 1 + _classicalTracks.length) %
+                                        _classicalTracks.length;
+                            _changeTrack(newIndex);
+                          },
+                          icon: const Icon(Icons.skip_previous),
+                          label: const Text('Previous'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primary,
+                            foregroundColor: Colors.white,
+                          ),
                         ),
                       ),
                       const SizedBox(width: AppSpacing.md),
@@ -500,17 +501,19 @@ class _MeditationScreenState extends State<MeditationScreen> {
                         ),
                       ),
                       const SizedBox(width: AppSpacing.md),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          final newIndex = (_selectedMusicTrack + 1) %
-                                      _classicalTracks.length;
-                          _changeTrack(newIndex);
-                        },
-                        icon: const Icon(Icons.skip_next),
-                        label: const Text('Next'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primary,
-                          foregroundColor: Colors.white,
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            final newIndex = (_selectedMusicTrack + 1) %
+                                        _classicalTracks.length;
+                            _changeTrack(newIndex);
+                          },
+                          icon: const Icon(Icons.skip_next),
+                          label: const Text('Next'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primary,
+                            foregroundColor: Colors.white,
+                          ),
                         ),
                       ),
                     ],

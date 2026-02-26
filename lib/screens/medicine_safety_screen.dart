@@ -74,7 +74,91 @@ class MedicineSafetyScreen extends StatelessWidget {
                   ),
                   if (provider.error != null) ...[
                     const SizedBox(height: AppSpacing.md),
-                    Text(provider.error!, style: const TextStyle(color: AppTheme.destructive)),
+                    // Check if this is a validation error (not a medicine image)
+                    if (provider.validationError != null)
+                      Container(
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.orange.shade200),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.warning_amber, color: Colors.orange.shade700, size: 24),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'Image Validation Failed',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.orange.shade900,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: AppSpacing.sm),
+                            Text(
+                              provider.error!,
+                              style: TextStyle(color: Colors.orange.shade900),
+                            ),
+                            if (provider.validationError!.details != null) ...[
+                              const SizedBox(height: AppSpacing.sm),
+                              Container(
+                                padding: const EdgeInsets.all(AppSpacing.sm),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.shade100,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Details:',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.orange.shade900,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      '• Reason: ${provider.validationError!.reason}',
+                                      style: TextStyle(
+                                        color: Colors.orange.shade900,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                    Text(
+                                      '• Confidence: ${(provider.validationError!.confidence * 100).toStringAsFixed(0)}%',
+                                      style: TextStyle(
+                                        color: Colors.orange.shade900,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                            const SizedBox(height: AppSpacing.sm),
+                            Text(
+                              'Please upload:\n✓ Medicine strip/blister pack\n✓ Pill bottle with label\n✓ Medical packaging',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.orange.shade800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      // Regular error (network, backend, etc.)
+                      Text(provider.error!, style: const TextStyle(color: AppTheme.destructive)),
                   ],
                 ],
               ),

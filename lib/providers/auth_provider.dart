@@ -2,20 +2,30 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// User roles in SUDHA app
+enum UserRole {
+  general,
+  pregnant,
+}
+
 class AuthProvider extends ChangeNotifier {
   static const String _emailKey = 'sudha_user_email';
+  static const String _roleKey = 'sudha_user_role';
   
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   bool _isLoading = true;
   bool _isAuthenticated = false;
   String? _email;
   String? _uid;
+  UserRole _role = UserRole.general; // Default role
   String? error;
 
   bool get isLoading => _isLoading;
   bool get isAuthenticated => _isAuthenticated;
   String? get email => _email;
   String? get uid => _uid;
+  UserRole get role => _role;
+  bool get isPregnantRole => _role == UserRole.pregnant;
   User? get firebaseUser => _firebaseAuth.currentUser;
 
   AuthProvider() {
@@ -34,10 +44,19 @@ class AuthProvider extends ChangeNotifier {
         
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(_emailKey, user.email ?? '');
+        
+        // Load user role from SharedPreferences
+        final roleString = prefs.getString(_roleKey);
+        if (roleString == 'pregnant') {
+          _role = UserRole.pregnant;
+        } else {
+          _role = UserRole.general;
+        }
       } else {
         _isAuthenticated = false;
         _email = null;
         _uid = null;
+        _role = UserRole.general;
       }
     } catch (e) {
       error = e.toString();
@@ -163,11 +182,26 @@ class AuthProvider extends ChangeNotifier {
       _isAuthenticated = false;
       _email = null;
       _uid = null;
+      _role = UserRole.general;
       error = null;
 
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_emailKey);
+      await prefs.remove(_roleKey);
       
+      notifyListeners();
+    } catch (e) {
+      error = e.toString();
+      notifyListeners();
+    }
+  }
+
+  /// Switch user role between general and pregnant
+  Future<void> switchRole(UserRole newRole) async {
+    try {
+      _role = newRole;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_roleKey, newRole == UserRole.pregnant ? 'pregnant' : 'general');
       notifyListeners();
     } catch (e) {
       error = e.toString();
