@@ -5,10 +5,10 @@ import 'package:image_picker/image_picker.dart';
 
 import '../exceptions/medicine_validation_exception.dart';
 import '../models/medicine_verification.dart';
-import '../services/api_service.dart';
+import '../services/gemini_medicine_service.dart';
 
 class MedicineSafetyProvider extends ChangeNotifier {
-  final ApiService _apiService = const ApiService();
+  final GeminiMedicineService _geminiService = GeminiMedicineService();
   final ImagePicker _picker = ImagePicker();
 
   XFile? selectedImage;
@@ -46,7 +46,9 @@ class MedicineSafetyProvider extends ChangeNotifier {
 
     try {
       final file = File(selectedImage!.path);
-      result = await _apiService.verifyMedicine(file);
+      // 🚨 CRITICAL: Two-step verification (detection → analysis)
+      // Percentage is NEVER shown for non-medicine images
+      result = await _geminiService.verifyMedicine(file);
     } on MedicineValidationException catch (e) {
       // Image validation failed - not a medicine image
       // ignore: avoid_print
@@ -56,9 +58,9 @@ class MedicineSafetyProvider extends ChangeNotifier {
       validationError = e;
       error = e.message;
     } catch (e) {
-      // Other errors (network, backend, etc.)
+      // Other errors (network, Gemini API, etc.)
       // ignore: avoid_print
-      print('REAL ERROR FROM BACKEND: $e');
+      print('❌ ERROR: $e');
       error = e.toString();
     } finally {
       isLoading = false;
