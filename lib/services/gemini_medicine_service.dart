@@ -198,17 +198,18 @@ If you cannot determine with confidence, set is_fake to false and risk_level to 
       
       print('🎯 ANALYSIS RESULT: is_fake=$isFake, confidence=$confidence, risk=$riskLevel');
       
-      // Return result
+      // Return result (convert confidence to int percentage)
       return MedicineVerificationResult(
-        confidence: confidence,
+        confidence: (confidence * 100).toInt(),
         riskLevel: riskLevel,
         message: isFake 
             ? '⚠️ WARNING: This medicine shows signs of being fake'
             : '✅ This medicine appears to be authentic',
-        details: {
+        metadata: {
           'is_fake': isFake,
           'signs': signs,
           'analysis': message,
+          'raw_confidence': confidence,
         },
       );
       
