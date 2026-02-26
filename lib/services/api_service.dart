@@ -117,9 +117,20 @@ class ApiService {
 
       final data = _parseJsonMap(response.body);
 
-      // Check if validation failed (new backend validation logic)
+      // ⚠️ STRICT VALIDATION: Check if this is an invalid image
       if (data.containsKey('success') && data['success'] == false) {
-        _log('VERIFY_MEDICINE', '⚠️ Image validation failed: ${data['message']}');
+        final errorType = data['type'] ?? 'validation_error';
+        _log('VERIFY_MEDICINE', '⚠️ Image validation failed: ${data['message']} (type: $errorType)');
+        
+        if (errorType == 'invalid_image') {
+          // Not a medicine image - throw validation exception
+          throw MedicineValidationException(
+            data['message'] ?? 'Image does not appear to be medicine',
+            details: data['details'],
+          );
+        }
+        
+        // Other validation failures
         throw MedicineValidationException(
           data['message'] ?? 'Invalid medicine image',
           details: data['details'],
