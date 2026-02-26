@@ -5,9 +5,26 @@ class ConditionResult {
   const ConditionResult({required this.condition, required this.confidence});
 
   factory ConditionResult.fromJson(Map<String, dynamic> json) {
+    // Try multiple confidence key variants
+    double confidenceScore = double.tryParse(
+      json['confidence_score']?.toString() ??
+      json['confidenceScore']?.toString() ??
+      json['confidence']?.toString() ??
+      json['confidence_percent']?.toString() ??
+      "0"
+    ) ?? 0;
+    
+    // If backend returns 0-100, keep as is. Otherwise normalize to 0-100
+    if (confidenceScore > 1.0 && confidenceScore <= 100.0) {
+      // Already in 0-100 format
+    } else if (confidenceScore > 0 && confidenceScore <= 1.0) {
+      // Convert from 0-1 to 0-100
+      confidenceScore = confidenceScore * 100;
+    }
+    
     return ConditionResult(
       condition: json['condition'] as String? ?? 'Unknown',
-      confidence: (json['confidence'] as num?)?.toInt() ?? 0,
+      confidence: confidenceScore.toInt().clamp(0, 100),
     );
   }
 }

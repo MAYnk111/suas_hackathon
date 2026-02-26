@@ -4,23 +4,40 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/theme_provider.dart';
 import '../providers/language_provider.dart';
+import '../providers/family_provider.dart';
+import '../providers/health_data_provider.dart';
+import '../providers/reminder_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_spacing.dart';
 import '../widgets/app_card.dart';
 import '../widgets/section_header.dart';
+import '../screens/health_data_export_screen.dart';
+import '../screens/user_health_information_screen.dart';
+import '../screens/health_snapshot_preview_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final theme = context.watch<ThemeProvider>();
     final language = context.watch<LanguageProvider>();
-    final familyMembers = [
-      {'name': 'Mom', 'relation': 'Mother'},
-      {'name': 'Dad', 'relation': 'Father'},
-    ];
+    final family = context.watch<FamilyProvider>();
+    final healthData = context.watch<HealthDataProvider>();
+    final reminders = context.watch<ReminderProvider>();
+
+    // Set user data for health export
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (auth.email != null && auth.uid != null) {
+        healthData.setUserData(auth.email, auth.uid);
+      }
+    });
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
@@ -123,7 +140,7 @@ class ProfileScreen extends StatelessWidget {
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: AppSpacing.md),
-            ...familyMembers.map((member) => Padding(
+            ...family.members.map((member) => Padding(
               padding: const EdgeInsets.only(bottom: AppSpacing.md),
               child: AppCard(
                 child: ListTile(
@@ -132,11 +149,25 @@ class ProfileScreen extends StatelessWidget {
                     child: const Icon(Icons.person,
                         color: AppTheme.accentForeground),
                   ),
-                  title: Text(member['name']!),
-                  subtitle: Text(member['relation']!),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete_outline),
-                    onPressed: () {},
+                  title: Text(member.name),
+                  subtitle: Text(
+                    member.phone != null
+                        ? '${member.relation} • ${member.phone}'
+                        : member.relation,
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit_outlined),
+                        onPressed: () => _showEditMemberDialog(context, member),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline),
+                        color: AppTheme.destructive,
+                        onPressed: () => _confirmDeleteMember(context, member),
+                      ),
+                    ],
                   ),
                   contentPadding: EdgeInsets.zero,
                 ),
@@ -151,7 +182,7 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 title: const Text('Add Family Member'),
                 trailing: const Icon(Icons.arrow_forward),
-                onTap: () {},
+                onTap: () => _showAddMemberDialog(context),
                 contentPadding: EdgeInsets.zero,
               ),
             ),
@@ -174,6 +205,104 @@ class ProfileScreen extends StatelessWidget {
                 subtitle: const Text('Set up quick alerts'),
                 trailing: const Icon(Icons.arrow_forward),
                 onTap: () {},
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+
+            // Health Data & Records - Health Snapshot
+            Text(
+              'Health Data & Records',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            AppCard(
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: AppTheme.sage,
+                  child: const Icon(Icons.health_and_safety_outlined,
+                      color: AppTheme.sageForeground),
+                ),
+                title: const Text('Generate Snapshot'),
+                subtitle: const Text('Create health record'),
+                trailing: const Icon(Icons.arrow_forward),
+                onTap: () async {
+                  if (!healthData.hasRequiredHealthInfo) {
+                    final result = await Navigator.push<bool>(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const UserHealthInformationScreen(),
+                      ),
+                    );
+                    if (!mounted || result != true) return;
+                  }
+
+                  // Generate snapshot
+                  final activeMeds = reminders
+                      .reminders
+                      .map((r) => r.medicineName)
+                      .toList();
+                  
+                  final snapshot = await healthData.generateSnapshot(
+                    type: SnapshotType.normal,
+                    activeMedications: activeMeds,
+                  );
+
+                  if (!mounted) return;
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HealthSnapshotPreviewScreen(
+                        snapshot: snapshot,
+                      ),
+                    ),
+                  );
+                },
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            AppCard(
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: AppTheme.accent,
+                  child: const Icon(Icons.emergency_outlined,
+                      color: AppTheme.accentForeground),
+                ),
+                title: const Text('Emergency Snapshot'),
+                subtitle: const Text('Quick medical record'),
+                trailing: const Icon(Icons.arrow_forward),
+                onTap: () async {
+                  if (!healthData.hasRequiredHealthInfo) {
+                    final result = await Navigator.push<bool>(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const UserHealthInformationScreen(),
+                      ),
+                    );
+                    if (!mounted || result != true) return;
+                  }
+
+                  final activeMeds = reminders
+                      .reminders
+                      .map((r) => r.medicineName)
+                      .toList();
+
+                  final snapshot = await healthData.generateSnapshot(
+                    type: SnapshotType.emergency,
+                    activeMedications: activeMeds,
+                  );
+
+                  if (!mounted) return;
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HealthSnapshotPreviewScreen(
+                        snapshot: snapshot,
+                      ),
+                    ),
+                  );
+                },
                 contentPadding: EdgeInsets.zero,
               ),
             ),
@@ -261,6 +390,182 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: AppSpacing.lg),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showAddMemberDialog(BuildContext context) {
+    final nameController = TextEditingController();
+    final relationController = TextEditingController();
+    final phoneController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Add Family Member'),
+        content: Form(
+          key: formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Name',
+                    hintText: 'Enter name',
+                  ),
+                  validator: (val) => val?.isEmpty ?? true ? 'Required' : null,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: relationController,
+                  decoration: const InputDecoration(
+                    labelText: 'Relation',
+                    hintText: 'e.g., Mother, Father, Spouse',
+                  ),
+                  validator: (val) => val?.isEmpty ?? true ? 'Required' : null,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: phoneController,
+                  decoration: const InputDecoration(
+                    labelText: 'Phone Number (Optional)',
+                    hintText: 'Enter phone number',
+                  ),
+                  keyboardType: TextInputType.phone,
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (formKey.currentState?.validate() ?? false) {
+                context.read<FamilyProvider>().addMember(
+                      name: nameController.text.trim(),
+                      relation: relationController.text.trim(),
+                      phone: phoneController.text.trim().isEmpty
+                          ? null
+                          : phoneController.text.trim(),
+                    );
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Family member added')),
+                );
+              }
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditMemberDialog(BuildContext context, FamilyMember member) {
+    final nameController = TextEditingController(text: member.name);
+    final relationController = TextEditingController(text: member.relation);
+    final phoneController = TextEditingController(text: member.phone ?? '');
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Edit Family Member'),
+        content: Form(
+          key: formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Name',
+                    hintText: 'Enter name',
+                  ),
+                  validator: (val) => val?.isEmpty ?? true ? 'Required' : null,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: relationController,
+                  decoration: const InputDecoration(
+                    labelText: 'Relation',
+                    hintText: 'e.g., Mother, Father, Spouse',
+                  ),
+                  validator: (val) => val?.isEmpty ?? true ? 'Required' : null,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: phoneController,
+                  decoration: const InputDecoration(
+                    labelText: 'Phone Number (Optional)',
+                    hintText: 'Enter phone number',
+                  ),
+                  keyboardType: TextInputType.phone,
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (formKey.currentState?.validate() ?? false) {
+                context.read<FamilyProvider>().updateMember(
+                      member.id,
+                      name: nameController.text.trim(),
+                      relation: relationController.text.trim(),
+                      phone: phoneController.text.trim().isEmpty
+                          ? null
+                          : phoneController.text.trim(),
+                    );
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Family member updated')),
+                );
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDeleteMember(BuildContext context, FamilyMember member) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Family Member'),
+        content: Text('Are you sure you want to remove ${member.name}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(foregroundColor: AppTheme.destructive),
+            onPressed: () {
+              context.read<FamilyProvider>().deleteMember(member.id);
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('${member.name} removed')),
+              );
+            },
+            child: const Text('Delete'),
+          ),
+        ],
       ),
     );
   }

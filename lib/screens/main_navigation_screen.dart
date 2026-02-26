@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/bottom_nav_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/translations.dart';
 import 'dashboard_screen.dart';
 import 'symptoms_screen.dart';
 import 'food_screen.dart';
@@ -36,26 +37,26 @@ class MainNavigationScreen extends StatelessWidget {
         selectedItemColor: AppTheme.primary,
         unselectedItemColor: AppTheme.mutedForeground,
         backgroundColor: AppTheme.card,
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard_outlined),
-            label: 'Dashboard',
+            icon: const Icon(Icons.dashboard_outlined),
+            label: tr(context, 'dashboard'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.monitor_heart_outlined),
-            label: 'Symptoms',
+            icon: const Icon(Icons.monitor_heart_outlined),
+            label: tr(context, 'symptoms'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.restaurant_menu_outlined),
-            label: 'Food',
+            icon: const Icon(Icons.restaurant_menu_outlined),
+            label: tr(context, 'food'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.spa_outlined),
-            label: 'Meditation',
+            icon: const Icon(Icons.spa_outlined),
+            label: tr(context, 'meditation'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: 'Profile',
+            icon: const Icon(Icons.person_outline),
+            label: tr(context, 'profile'),
           ),
         ],
       ),

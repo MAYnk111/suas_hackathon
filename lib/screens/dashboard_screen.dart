@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../providers/dashboard_provider.dart';
 import '../providers/bottom_nav_provider.dart';
@@ -9,7 +10,6 @@ import '../widgets/app_card.dart';
 import '../widgets/section_header.dart';
 import 'medicine_safety_screen.dart';
 import 'food_guidance_screen.dart';
-import 'sos_emergency_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -26,6 +26,157 @@ class _DashboardScreenState extends State<DashboardScreen> {
       if (!mounted) return;
       context.read<DashboardProvider>().loadDashboard();
     });
+  }
+
+  Future<void> _makeCall(String phoneNumber) async {
+    final uri = Uri(scheme: 'tel', path: phoneNumber);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Cannot make call to $phoneNumber')),
+        );
+      }
+    }
+  }
+
+  void _showSOSBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header
+              Container(
+                width: 48,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppTheme.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              Row(
+                children: [
+                  const Text('🚨', style: TextStyle(fontSize: 24)),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Emergency Services',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        Text(
+                          'Quick access to help',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(color: AppTheme.mutedForeground),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              
+              // Call 108 Button
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _makeCall('108');
+                  },
+                  icon: const Icon(Icons.phone),
+                  label: const Text('Call 108 (National Emergency)'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppTheme.destructive,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.md,
+                      horizontal: AppSpacing.lg,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+
+              // Call 112 Button
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _makeCall('112');
+                  },
+                  icon: const Icon(Icons.phone),
+                  label: const Text('Call 112 (Police/Fire)'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppTheme.coral,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.md,
+                      horizontal: AppSpacing.lg,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+
+              // Notify Family Button
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Emergency notification feature coming soon'),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.group),
+                  label: const Text('Notify Family'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppTheme.primary,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.md,
+                      horizontal: AppSpacing.lg,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+
+              // Disclaimer
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppTheme.border),
+                ),
+                child: Text(
+                  '⚠️ In a life-threatening emergency, always call 108 or 112 immediately. Do not rely solely on this app for emergency medical guidance.',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: AppTheme.mutedForeground),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -199,53 +350,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             const SizedBox(height: AppSpacing.md),
 
-            // Block 3: Vedic Guidance
-            AppCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Text('🌿', style: TextStyle(fontSize: 28)),
-                      const SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Arogya Drishti',
-                                style: Theme.of(context).textTheme.titleMedium),
-                            const SizedBox(height: 4),
-                            Text('Today\'s wellness insight',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(
-                                        color: AppTheme.mutedForeground)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  Container(
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppTheme.border),
-                    ),
-                    child: Text(
-                      dashboard.status != null
-                          ? 'Balance your Doshas daily for optimal health'
-                          : 'Loading daily insight...',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: AppSpacing.md),
-
             // Block 4: Medicine Reminders
             AppCard(
               child: Column(
@@ -290,55 +394,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: AppSpacing.md),
-
-            // Block 5: Emergency SOS
-            AppCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Text('🚨', style: TextStyle(fontSize: 28)),
-                      const SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Emergency SOS',
-                                style: Theme.of(context).textTheme.titleMedium),
-                            const SizedBox(height: 4),
-                            Text('Quick access to help',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(
-                                        color: AppTheme.mutedForeground)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) => const SOSEmergencyScreen()));
-                      },
-                      icon: const Icon(Icons.phone),
-                      label: const Text('Emergency Services'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.destructive,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
             const SizedBox(height: AppSpacing.lg),
           ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _showSOSBottomSheet,
+        backgroundColor: AppTheme.destructive,
+        elevation: 6,
+        label: const Text('SOS'),
+        icon: const Icon(Icons.emergency),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
         ),
       ),
     );

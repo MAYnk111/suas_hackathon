@@ -5,6 +5,7 @@ import '../providers/tracking_provider.dart';
 import '../providers/hospital_checklist_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_spacing.dart';
+import '../utils/health_snapshot_storage.dart';
 import '../widgets/app_card.dart';
 import '../widgets/section_header.dart';
 
@@ -193,6 +194,9 @@ class _SymptomsScreenState extends State<SymptomsScreen> {
                       ...tracking.result!.topConditions.asMap().entries.map((e) {
                         final condition = e.value;
                         final index = e.key;
+                        // Debug logging
+                        // ignore: avoid_print
+                        print('DEBUG CONFIDENCE: ${index + 1}. ${condition.condition} = ${condition.confidence}%');
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 16.0),
                           child: Column(
@@ -218,15 +222,18 @@ class _SymptomsScreenState extends State<SymptomsScreen> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 6),
+                              const SizedBox(height: 8),
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(4),
-                                child: LinearProgressIndicator(
-                                  value: condition.confidence / 100,
-                                  minHeight: 8,
-                                  backgroundColor: AppTheme.mutedForeground.withOpacity(0.2),
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    _getConfidenceColor(condition.confidence),
+                                child: SizedBox(
+                                  height: 12,
+                                  child: LinearProgressIndicator(
+                                    value: (condition.confidence / 100).clamp(0.0, 1.0),
+                                    minHeight: 12,
+                                    backgroundColor: Colors.grey.shade300,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      _getConfidenceColor(condition.confidence),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -288,6 +295,9 @@ class _SymptomsScreenState extends State<SymptomsScreen> {
                     child: ElevatedButton(
                       onPressed: () {
                         if (_durationController.text.isNotEmpty) {
+                          HealthSnapshotStorage.saveLatestDailyEntry(
+                            entry: _durationController.text.trim(),
+                          );
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Entry saved to your tracker'),

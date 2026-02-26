@@ -4,6 +4,7 @@ import '../models/triage_models.dart';
 import '../services/api_service.dart';
 import '../services/gemini_service.dart';
 import '../utils/app_config.dart';
+import '../utils/health_snapshot_storage.dart';
 
 class TrackingProvider extends ChangeNotifier {
   final ApiService _apiService = const ApiService();
@@ -63,6 +64,11 @@ class TrackingProvider extends ChangeNotifier {
       error = e.toString();
     } finally {
       isSubmitting = false;
+      await HealthSnapshotStorage.saveLatestSymptomLog(
+        symptoms: symptoms,
+        age: age,
+        gender: gender,
+      );
       notifyListeners();
     }
   }

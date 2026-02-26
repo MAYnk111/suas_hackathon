@@ -100,16 +100,100 @@ class AppTheme {
     ),
   );
 
-  static TextTheme _buildTextTheme() {
+  // Dark theme colors
+  static const Color darkBackground = Color(0xFF1A1D23);
+  static const Color darkForeground = Color(0xFFF5F5F5);
+  static const Color darkCard = Color(0xFF252931);
+  static const Color darkBorder = Color(0xFF313740);
+  static const Color darkMuted = Color(0xFF2A2F38);
+  static const Color darkMutedForeground = Color(0xFFB8BCC8);
+
+  static ThemeData dark = ThemeData(
+    useMaterial3: true,
+    scaffoldBackgroundColor: darkBackground,
+    textTheme: _buildTextTheme(isDark: true),
+    colorScheme: const ColorScheme.dark(
+      primary: primary,
+      onPrimary: primaryForeground,
+      secondary: secondary,
+      onSecondary: secondaryForeground,
+      surface: darkCard,
+      onSurface: darkForeground,
+      error: destructive,
+      onError: destructiveForeground,
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: darkBackground,
+      foregroundColor: darkForeground,
+      elevation: 0,
+      titleTextStyle: GoogleFonts.nunito(fontSize: 20, fontWeight: FontWeight.w700, color: darkForeground),
+      iconTheme: const IconThemeData(color: darkForeground),
+    ),
+    cardTheme: CardThemeData(
+      color: darkCard,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(radius),
+        side: const BorderSide(color: darkBorder),
+      ),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: darkCard,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: darkBorder),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: darkBorder),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: primary, width: 1.5),
+      ),
+      hintStyle: const TextStyle(color: darkMutedForeground),
+    ),
+    dividerColor: darkBorder,
+    chipTheme: const ChipThemeData(
+      backgroundColor: darkMuted,
+      labelStyle: TextStyle(color: darkMutedForeground, fontWeight: FontWeight.w600),
+      side: BorderSide(color: darkBorder),
+      shape: StadiumBorder(),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: primary,
+        foregroundColor: primaryForeground,
+        textStyle: const TextStyle(fontWeight: FontWeight.w600),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: darkForeground,
+        side: const BorderSide(color: darkBorder),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    ),
+  );
+
+  static TextTheme _buildTextTheme({bool isDark = false}) {
     final base = GoogleFonts.dmSansTextTheme();
+    final textColor = isDark ? darkForeground : foreground;
+    final mutedColor = isDark ? darkMutedForeground : mutedForeground;
+    
     return base.copyWith(
-      headlineLarge: GoogleFonts.nunito(fontSize: 28, fontWeight: FontWeight.w800, color: foreground),
-      headlineMedium: GoogleFonts.nunito(fontSize: 22, fontWeight: FontWeight.w700, color: foreground),
-      titleLarge: GoogleFonts.nunito(fontSize: 20, fontWeight: FontWeight.w700, color: foreground),
-      titleMedium: GoogleFonts.nunito(fontSize: 16, fontWeight: FontWeight.w700, color: foreground),
-      bodyLarge: base.bodyLarge?.copyWith(fontWeight: FontWeight.w500, color: foreground),
-      bodyMedium: base.bodyMedium?.copyWith(fontWeight: FontWeight.w500, color: foreground),
-      bodySmall: base.bodySmall?.copyWith(fontWeight: FontWeight.w500, color: mutedForeground),
+      headlineLarge: GoogleFonts.nunito(fontSize: 28, fontWeight: FontWeight.w800, color: textColor),
+      headlineMedium: GoogleFonts.nunito(fontSize: 22, fontWeight: FontWeight.w700, color: textColor),
+      titleLarge: GoogleFonts.nunito(fontSize: 20, fontWeight: FontWeight.w700, color: textColor),
+      titleMedium: GoogleFonts.nunito(fontSize: 16, fontWeight: FontWeight.w700, color: textColor),
+      bodyLarge: base.bodyLarge?.copyWith(fontWeight: FontWeight.w500, color: textColor),
+      bodyMedium: base.bodyMedium?.copyWith(fontWeight: FontWeight.w500, color: textColor),
+      bodySmall: base.bodySmall?.copyWith(fontWeight: FontWeight.w500, color: mutedColor),
     );
   }
 }

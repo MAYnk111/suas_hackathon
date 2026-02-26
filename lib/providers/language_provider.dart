@@ -7,6 +7,16 @@ class LanguageProvider extends ChangeNotifier {
   String _language = 'English';
   get language => _language;
 
+  Locale get locale {
+    switch (_language) {
+      case 'Hindi':
+        return const Locale('hi', 'IN');
+      case 'English':
+      default:
+        return const Locale('en', 'US');
+    }
+  }
+
   // Simple translation map for core labels
   final Map<String, Map<String, String>> _translations = {
     'English': {

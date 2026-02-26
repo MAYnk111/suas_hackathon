@@ -64,6 +64,21 @@ class GeminiService {
   /// Analyzes symptoms using the SAME /chat endpoint as web app
   /// Sends a structured prompt to Gemini via /chat
   /// This matches the web app's SymptomSection.tsx implementation EXACTLY
+  /// Generate confidence score based on condition ranking
+  /// First condition (most likely) gets high confidence, diminishing for lower ranks
+  int _getConfidenceForRank(int rank) {
+    switch (rank) {
+      case 1:
+        return 95;
+      case 2:
+        return 80;
+      case 3:
+        return 65;
+      default:
+        return 50;
+    }
+  }
+
   Future<TriageResult> analyzeUserInput({
     required String symptoms,
     required int age,
@@ -178,20 +193,23 @@ Keep it concise.''';
         if (match != null) {
           final conditionName = match.group(1)!.trim();
           final reason = match.group(2)!.trim();
+          // Generate confidence based on ranking (1st=95, 2nd=80, 3rd=65)
+          final confidenceValue = _getConfidenceForRank(topConditions.length + 1);
           topConditions.add(ConditionResult(
             condition: conditionName,
-            confidence: 0, // Web app doesn't extract confidence from prompt response
+            confidence: confidenceValue,
           ));
-          _log('PARSE_CONDITION', 'Name: $conditionName, Reason: $reason');
+          _log('PARSE_CONDITION', 'Name: $conditionName, Reason: $reason, Confidence: $confidenceValue%');
         } else {
           // Fallback: extract just the text after the number
           final text = line.replaceAll(RegExp(r'^\d+\.\s*'), '').trim();
           if (text.isNotEmpty) {
+            final confidenceValue = _getConfidenceForRank(topConditions.length + 1);
             topConditions.add(ConditionResult(
               condition: text,
-              confidence: 0,
+              confidence: confidenceValue,
             ));
-            _log('PARSE_CONDITION_FALLBACK', 'Condition: $text');
+            _log('PARSE_CONDITION_FALLBACK', 'Condition: $text, Confidence: $confidenceValue%');
           }
         }
       } else if (section == 'advice' && RegExp(r'^[-•]').hasMatch(line)) {

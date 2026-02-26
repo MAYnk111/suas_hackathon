@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 
@@ -19,6 +20,7 @@ import 'providers/vedic_wellness_provider.dart';
 import 'providers/reminder_provider.dart';
 import 'providers/meditation_provider.dart';
 import 'providers/family_provider.dart';
+import 'providers/health_data_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/main_navigation_screen.dart';
 import 'theme/app_theme.dart';
@@ -39,7 +41,7 @@ void main() async {
     // ignore: avoid_print
     print('⚠️ Firebase initialization warning: $e');
   }
-  
+
   // ignore: avoid_print
   print('BASE URL: ${AppConfig.baseUrl}');
   runApp(const SudhaApp());
@@ -68,15 +70,27 @@ class SudhaApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ReminderProvider()),
         ChangeNotifierProvider(create: (_) => MeditationProvider()),
         ChangeNotifierProvider(create: (_) => FamilyProvider()),
+        ChangeNotifierProvider(create: (_) => HealthDataProvider()),
       ],
-      child: Consumer<ThemeProvider>(
-        builder: (context, themeProvider, _) {
+      child: Consumer2<ThemeProvider, LanguageProvider>(
+        builder: (context, themeProvider, languageProvider, _) {
           return MaterialApp(
             title: 'SUDHA',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.light,
-            darkTheme: AppTheme.light, // Keep light theme for now, can enhance later
+            darkTheme: AppTheme.dark,
             themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+            // ✅ Locale configuration for language switching
+            locale: languageProvider.locale,
+            supportedLocales: const [
+              Locale('en', 'US'),
+              Locale('hi', 'IN'),
+            ],
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
             home: const AppEntry(),
           );
         },
