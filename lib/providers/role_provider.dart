@@ -53,10 +53,12 @@ class RoleProvider extends ChangeNotifier {
   void setRole(UserRole newRole) {
     if (_currentRole != newRole) {
       _currentRole = newRole;
+      // ignore: avoid_print
+      print('═══════════════════════════════════════════');
+      print('✅ ROLE CHANGED TO: ${newRole.displayName}');
+      print('═══════════════════════════════════════════');
       _saveRole(); // Persist the choice
       notifyListeners();
-      // ignore: avoid_print
-      print('✅ Role switched to: ${newRole.displayName}');
     }
   }
 

@@ -88,7 +88,17 @@ class RoleSelectionScreen extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
-          context.read<RoleProvider>().setRole(role);
+          // 🔍 Debug print
+          print("👤 ROLE BUTTON CLICKED: ${role.displayName}");
+          
+          // ✅ Step 1: Update role provider
+          final roleProvider = context.read<RoleProvider>();
+          roleProvider.setRole(role);
+          
+          // ✅ Step 2: Pop back to root so AppEntry rebuilds with new role
+          Future.delayed(const Duration(milliseconds: 100), () {
+            Navigator.of(context, rootNavigator: true).popUntil((route) => route.isFirst);
+          });
         },
         borderRadius: BorderRadius.circular(16),
         child: Padding(

@@ -136,7 +136,6 @@ class _OverviewTabState extends State<_OverviewTab> {
   Widget build(BuildContext context) {
     final weeksPregnant = widget.pregnancy.weeksPregnant;
     final daysUntilDue = widget.pregnancy.daysUntilDue;
-    final String imagePath = ImagePathHelper.fetusImage(_selectedMonth);
 
     return SingleChildScrollView(
       child: Column(
@@ -150,14 +149,12 @@ class _OverviewTabState extends State<_OverviewTab> {
                 decoration: const BoxDecoration(
                   color: Colors.black,
                 ),
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 500),
-                  child: _safeImageAsset(
-                    imagePath,
-                    key: ValueKey(_selectedMonth),
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
+                child: Center(
+                  child: Image.asset(
+                    "assets/images/fetus_m1.png",
+                    width: 220,
+                    height: 220,
+                    fit: BoxFit.contain,
                   ),
                 ),
               ),

@@ -23,6 +23,7 @@ import 'providers/meditation_provider.dart';
 import 'providers/family_provider.dart';
 import 'providers/health_data_provider.dart';
 import 'providers/role_provider.dart';
+import 'core/user_role.dart';
 import 'screens/login_screen.dart';
 import 'screens/main_navigation_screen.dart';
 import 'pregnancy_role/pregnancy_role_app.dart';
@@ -137,6 +138,10 @@ class AppEntry extends StatelessWidget {
 
     return Consumer2<AuthProvider, RoleProvider>(
       builder: (context, auth, roleProvider, _) {
+        // 🔍 Debug: Log role changes
+        // ignore: avoid_print
+        print('🔄 AppEntry rebuilding - Current role: ${roleProvider.currentRole.displayName}');
+        
         // Show loading spinner while checking auth
         if (auth.isLoading) {
           return const Scaffold(
@@ -151,8 +156,12 @@ class AppEntry extends StatelessWidget {
         
         // ✅ STEP 2: Route Based on Role (Single Source of Truth)
         if (roleProvider.isPregnancyMode) {
+          // ignore: avoid_print
+          print('🤰 Routing to PregnancyRoleRoot');
           return const PregnancyRoleRoot();
         } else {
+          // ignore: avoid_print
+          print('🏥 Routing to MainNavigationScreen');
           return const MainNavigationScreen();
         }
       },

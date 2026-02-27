@@ -40,7 +40,6 @@ class StartJourneyWidget extends ConsumerWidget {
     final double progress = (daysPassed / 280).clamp(0.0, 1.0);
     final int weeksPregnant = (daysPassed / 7).floor();
     final int currentMonth = ((weeksPregnant / 4).floor() + 1).clamp(1, 9);
-    final String imagePath = ImagePathHelper.fetusImage(currentMonth);
 
     return GestureDetector(
       onTap: () {
@@ -66,8 +65,8 @@ class StartJourneyWidget extends ConsumerWidget {
             fit: StackFit.expand,
             children: [
               // Baby Image Background
-              _safeImageAsset(
-                imagePath,
+              Image.asset(
+                "assets/images/fetus_m1.png",
                 fit: BoxFit.cover,
               ),
               // Gradient Overlay

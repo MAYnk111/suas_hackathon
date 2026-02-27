@@ -1,3 +1,5 @@
+import '../../utils/fetus_image_map.dart' as fetus_map;
+
 /// Helper functions for constructing pregnancy image asset paths
 class ImagePathHelper {
   static const String _baseImagePath = 'assets/pregnancy/images';
@@ -19,11 +21,12 @@ class ImagePathHelper {
   /// 
   /// Example:
   /// ```dart
-  /// fetusImage(1) // returns 'assets/pregnancy/images/fetus_m1.png'
+  /// fetusImage(1) // returns 'assets/images/fetus_m1.png'
   /// ```
   static String fetusImage(int month) {
     final clampedMonth = month.clamp(1, 9);
-    return pregnancyImage('fetus_m$clampedMonth');
+    // Use the fetus image map for correct paths
+    return fetus_map.getFetusImage(clampedMonth);
   }
 
   /// Constructs full asset path for logo
